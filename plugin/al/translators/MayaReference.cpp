@@ -27,6 +27,7 @@
 #include "maya/MFnCamera.h"
 #include "maya/MFileIO.h"
 #include "maya/MItDependencyNodes.h"
+#include "maya/MPxFileResolver.h"
 #include "AL/usdmaya/nodes/Transform.h"
 #include "AL/usdmaya/fileio/translators/DgNodeTranslator.h"
 #include "AL/usdmaya/utils/DgNodeHelper.h"
@@ -37,6 +38,7 @@
 #include "AL/maya/utils/Utils.h"
 
 #include <pxr/usd/usd/attribute.h>
+#include <pxr/usd/ar/resolver.h>
 
 
 namespace {
@@ -169,6 +171,36 @@ MStatus MayaReference::update(const UsdPrim& prim)
   return m_mayaReferenceLogic.update(prim, parent);
 }
 
+MString resolveReference(SdfAssetPath const &mayaReferenceAssetPath)
+{
+  std::string assetPath = mayaReferenceAssetPath.GetAssetPath();
+
+  // Check if asset can be resolved by any registered MPxMayaResolver
+  // and if so, then leave it as is and let maya handle resolving
+  MString mayaReferencePath;
+  mayaReferencePath.setUTF8(assetPath.c_str());
+
+  MURI assetUrl(mayaReferencePath);
+  if (assetUrl.isValid()
+      && MPxFileResolver::findURIResolverByScheme(assetUrl.getScheme()))
+  {
+    return mayaReferencePath;
+  }
+
+  std::string resolvedPath = mayaReferenceAssetPath.GetResolvedPath();
+  if (!resolvedPath.empty()) {
+    ArGetResolver().OpenAsset(assetPath); //Force download
+  } else {
+    resolvedPath = mayaReferenceAssetPath.GetAssetPath();
+  }
+  // On windows resolver can return path with forward slash
+  // and maya doesn't like that
+  std::replace(resolvedPath.begin(), resolvedPath.end(), '\\', '/');
+
+  mayaReferencePath.setUTF8(resolvedPath.c_str());
+  return mayaReferencePath;
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 MStatus MayaReferenceLogic::update(const UsdPrim& prim, MObject parent) const
 {
@@ -176,15 +208,11 @@ MStatus MayaReferenceLogic::update(const UsdPrim& prim, MObject parent) const
   SdfAssetPath mayaReferenceAssetPath;
   // Check to see if we have a valid Maya reference attribute
   UsdAttribute mayaReferenceAttribute = prim.GetAttribute(m_referenceName);
-  mayaReferenceAttribute.Get(&mayaReferenceAssetPath);
-  MString mayaReferencePath(mayaReferenceAssetPath.GetResolvedPath().c_str());
-
-  // The resolved path is empty if the maya reference is a full path.
-  if(!mayaReferencePath.length())
-  {
-    mayaReferencePath = mayaReferenceAssetPath.GetAssetPath().c_str();
+  if (!mayaReferenceAttribute.Get(&mayaReferenceAssetPath)) {
+      return MS::kFailure;
   }
 
+  MString mayaReferencePath = resolveReference(mayaReferenceAssetPath);
   // If the path is still empty return, there is no reference to import
   if(!mayaReferencePath.length())
   {
@@ -465,7 +493,7 @@ MStatus MayaReferenceLogic::UnloadMayaReference(MObject& parent) const
     {
       MPlugArray referencePlugs;
       messagePlug.connectedTo(referencePlugs, false, true);
-      
+
       // Unload the connected references.
       for(uint32_t i = 0; i < referencePlugs.length(); ++i)
       {
