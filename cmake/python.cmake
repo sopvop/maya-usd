@@ -150,7 +150,8 @@ string(REGEX REPLACE "\\\\" "/" PYTHON_PREFIX ${PYTHON_PREFIX})
 string(REGEX REPLACE "\\\\" "/" PYTHON_INCLUDE_DIR ${PYTHON_INCLUDE_DIR})
 string(REGEX REPLACE "\\\\" "/" PYTHON_SITE_PACKAGES ${PYTHON_SITE_PACKAGES})
 
-if(CMAKE_HOST_WIN32)
+if(NOT PYTHON_LIBRARY)
+  if(CMAKE_HOST_WIN32)
     set(PYTHON_LIBRARY
         "${PYTHON_PREFIX}/libs/Python${PYTHON_LIBRARY_SUFFIX}.lib")
 
@@ -167,7 +168,7 @@ if(CMAKE_HOST_WIN32)
         message(FATAL_ERROR "Python libraries not found")
     endif()
 
-else()
+  else()
     if(PYTHON_MULTIARCH)
         set(_PYTHON_LIBS_SEARCH "${PYTHON_LIBDIR}/${PYTHON_MULTIARCH}" "${PYTHON_LIBDIR}")
     else()
@@ -185,6 +186,7 @@ else()
     if(NOT PYTHON_LIBRARY)
         set(PYTHON_LIBRARY python${PYTHON_LIBRARY_SUFFIX})
     endif()
+  endif()
 endif()
 
 MARK_AS_ADVANCED(
