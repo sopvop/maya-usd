@@ -1057,8 +1057,12 @@ void TransformationMatrix::initialiseToPrim(bool readFromPrim, Scope* transformN
               m_rotationTweak[0] = m_rotationTweak[1] = m_rotationTweak[2] = 0;
               // attempting to set the rotation via the attributes can end up failing when using zxy rotation orders. 
               // The only reliable way to set this value would appeear to be via MFnTransform :(
-              MFnTransform fn(m_transformNode.object());
-              fn.setRotation(m_rotationFromUsd);
+              // MFnTransform fn(m_transformNode.object());
+              // fn.setRotation(m_rotationFromUsd);
+              // MFnTransform hack breaks parallel computation
+              MPlug(transformNode->thisMObject(), MPxTransform::rotateX).setValue(m_rotationFromUsd.x);
+              MPlug(transformNode->thisMObject(), MPxTransform::rotateY).setValue(m_rotationFromUsd.y);
+              MPlug(transformNode->thisMObject(), MPxTransform::rotateZ).setValue(m_rotationFromUsd.z);
             }
           }
         }
