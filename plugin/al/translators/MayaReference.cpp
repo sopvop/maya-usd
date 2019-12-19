@@ -131,6 +131,7 @@ AL_USDMAYA_DEFINE_TRANSLATOR(MayaReference, AL_usd_MayaReference)
 //----------------------------------------------------------------------------------------------------------------------
 const TfToken MayaReferenceLogic::m_namespaceName = TfToken("mayaNamespace");
 const TfToken MayaReferenceLogic::m_referenceName = TfToken("mayaReference");
+const MString MayaReferenceLogic::m_primNSAttr = "usdPrimNamespace";
 
 //----------------------------------------------------------------------------------------------------------------------
 MStatus MayaReference::initialize()
@@ -291,10 +292,18 @@ MStatus MayaReferenceLogic::update(const UsdPrim& prim, MObject parent) const
         // attr before loading it, since the previous connection may be gone.
         //
         if (refName == expectedRefName) {
+          refNode = tempRefNode;
+        } else {
+          // Try to find via old mechanism
+          MPlug primNSPlug = tempRefFn.findPlug(MString(m_primNSAttr), true, &status);
+          if (status && primNSPlug.asString() == rigNamespaceM) {
+              refNode = tempRefNode;
+          }
+        }
+        if (!refNode.isNull()) {
           // Reconnect the reference node's `associatedNode` attr before
           // loading it, since the previous connection may be gone.
           connectReferenceAssociatedNode(parentDag, tempRefFn);
-          refNode = tempRefNode;
           break;
         }
       }
