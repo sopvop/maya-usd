@@ -88,6 +88,8 @@ target_link_libraries(AL_USDMayaSchemas ${DEPENDANT_LIBRARIES} ${PTHREAD_LINK})
 
 install(
     TARGETS AL_USDMayaSchemas
+    ARCHIVE
+    DESTINATION ${library_install_path}
     LIBRARY
     DESTINATION ${library_install_path}
     RUNTIME

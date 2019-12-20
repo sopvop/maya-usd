@@ -124,6 +124,8 @@ set_python_module_property(${PYTHON_LIBRARY_NAME})
 target_link_libraries(${PYTHON_LIBRARY_NAME} AL_USDMayaSchemasTest ${DEPENDANT_LIBRARIES})
 
 install(TARGETS ${PYTHON_LIBRARY_NAME}
+    ARCHIVE
+    DESTINATION ${bindings_install_path}
     LIBRARY
     DESTINATION ${bindings_install_path}
     RUNTIME
