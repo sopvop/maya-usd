@@ -59,6 +59,8 @@ install( FILES ${maya_test_headers}
 
 # install the library
 install(TARGETS ${MAYA_TEST_LIBRARY_NAME}
+    ARCHIVE
+    DESTINATION ${MAYA_TEST_LIBRARY_LOCATION}
     LIBRARY
     DESTINATION ${MAYA_TEST_LIBRARY_LOCATION}
     RUNTIME

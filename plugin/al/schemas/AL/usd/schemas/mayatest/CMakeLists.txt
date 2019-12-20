@@ -116,6 +116,8 @@ endif()
 target_link_libraries(_AL_USDMayaSchemasTest AL_USDMayaSchemasTest ${DEPENDANT_LIBRARIES})
 
 install(TARGETS _AL_USDMayaSchemasTest
+    ARCHIVE
+    DESTINATION ${bindings_install_path}
     LIBRARY
     DESTINATION ${bindings_install_path}
     RUNTIME
