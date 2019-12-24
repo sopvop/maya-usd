@@ -293,20 +293,29 @@ MStatus MayaReferenceLogic::update(const UsdPrim& prim, MObject parent) const
         //
         if (refName == expectedRefName) {
           refNode = tempRefNode;
-        } else {
-          // Try to find via old mechanism
-          MPlug primNSPlug = tempRefFn.findPlug(MString(m_primNSAttr), true, &status);
-          if (status && primNSPlug.asString() == rigNamespaceM) {
-              refNode = tempRefNode;
-          }
-        }
-        if (!refNode.isNull()) {
-          // Reconnect the reference node's `associatedNode` attr before
-          // loading it, since the previous connection may be gone.
-          connectReferenceAssociatedNode(parentDag, tempRefFn);
           break;
         }
       }
+    }
+    // search the old way using the namespace attr
+    if (refNode.isNull()) {
+      for (MItDependencyNodes refIter(MFn::kReference); !refIter.isDone(); refIter.next()) {
+        MObject tempRefNode = refIter.item();
+        MFnReference tempRefFn(tempRefNode);
+        if (!tempRefFn.isFromReferencedFile()) {
+          MPlug primNSPlug = tempRefFn.findPlug(MString(m_primNSAttr), true, &status);
+          if (status && primNSPlug.asString() == rigNamespaceM) {
+              refNode = tempRefNode;
+              break;
+          }
+        }
+      }
+    }
+    if (!refNode.isNull()) {
+      // Reconnect the reference node's `associatedNode` attr before
+      // loading it, since the previous connection may be gone.
+      MFnReference tempRefFn(refNode);
+      connectReferenceAssociatedNode(parentDag, tempRefFn);
     }
   }
 
