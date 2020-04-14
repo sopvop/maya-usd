@@ -273,7 +273,7 @@ UsdMayaReferenceAssembly::initialize()
 // CONSTRUCTORS/DESTRUCTORS
 UsdMayaReferenceAssembly::UsdMayaReferenceAssembly() :
     _updatingRepNamespace(false),
-    _activateRepOnFileLoad(false),
+    _activateRepOnFileLoad(true),
     _inSetInternalValue(false),
     _hasEdits(false)
 {
