@@ -94,6 +94,7 @@ include(cmake/utils.cmake)
 include(cmake/jinja.cmake)
 
 find_package(Maya 2018 REQUIRED)
+find_package(Boost COMPONENTS filesystem system python REQUIRED)
 find_package(USD REQUIRED)
 include(cmake/usd.cmake)
 include(${USD_CONFIG_FILE})
