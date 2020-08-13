@@ -44,9 +44,11 @@
 #include <maya/MNodeClass.h>
 #include <maya/MPlug.h>
 #include <maya/MSelectionList.h>
+#include "maya/MPxFileResolver.h"
 
 #include <mayaUsd/base/debugCodes.h>
 #include <mayaUsd/utils/util.h>
+#include <pxr/usd/ar/resolver.h>
 
 PXR_NAMESPACE_OPEN_SCOPE
 
@@ -149,7 +151,7 @@ namespace {
 const TfToken UsdMayaTranslatorMayaReference::m_namespaceName = TfToken("mayaNamespace");
 const TfToken UsdMayaTranslatorMayaReference::m_referenceName = TfToken("mayaReference");
 
-MStatus 
+MStatus
 UsdMayaTranslatorMayaReference::LoadMayaReference(const UsdPrim& prim, MObject& parent, MString& mayaReferencePath, MString& rigNamespaceM)
 {
     TF_DEBUG(PXRUSDMAYA_TRANSLATORS).Msg("MayaReferenceLogic::LoadMayaReference prim=%s\n", prim.GetPath().GetText());
@@ -241,7 +243,7 @@ UsdMayaTranslatorMayaReference::LoadMayaReference(const UsdPrim& prim, MObject& 
     return MS::kSuccess;
 }
 
-MStatus 
+MStatus
 UsdMayaTranslatorMayaReference::UnloadMayaReference(const MObject& parent){
     TF_DEBUG(PXRUSDMAYA_TRANSLATORS).Msg("MayaReferenceLogic::UnloadMayaReference\n");
     MStatus status;
@@ -270,7 +272,7 @@ UsdMayaTranslatorMayaReference::UnloadMayaReference(const MObject& parent){
     return status;
 }
 
-MStatus 
+MStatus
 UsdMayaTranslatorMayaReference::connectReferenceAssociatedNode(MFnDagNode& dagNode, MFnReference& refNode)
 {
     MPlug srcPlug(dagNode.object(), getMessageAttr());
@@ -306,15 +308,48 @@ UsdMayaTranslatorMayaReference::connectReferenceAssociatedNode(MFnDagNode& dagNo
     return result;
 }
 
-MStatus 
+MString resolveReference(SdfAssetPath const &mayaReferenceAssetPath)
+{
+  std::string assetPath = mayaReferenceAssetPath.GetAssetPath();
+
+  // Check if asset can be resolved by any registered MPxMayaResolver
+  // and if so, then leave it as is and let maya handle resolving
+  MString mayaReferencePath;
+  mayaReferencePath.setUTF8(assetPath.c_str());
+
+  MURI assetUrl(mayaReferencePath);
+  if (assetUrl.isValid()
+      && MPxFileResolver::findURIResolverByScheme(assetUrl.getScheme()))
+  {
+    return mayaReferencePath;
+  }
+
+  std::string resolvedPath = mayaReferenceAssetPath.GetResolvedPath();
+  if (!resolvedPath.empty()) {
+    ArGetResolver().OpenAsset(assetPath); //Force download
+  } else {
+    resolvedPath = mayaReferenceAssetPath.GetAssetPath();
+  }
+  // On windows resolver can return path with forward slash
+  // and maya doesn't like that
+  std::replace(resolvedPath.begin(), resolvedPath.end(), '\\', '/');
+
+  mayaReferencePath.setUTF8(resolvedPath.c_str());
+  return mayaReferencePath;
+}
+
+MStatus
 UsdMayaTranslatorMayaReference::update(const UsdPrim& prim, MObject parent)
 {
     MStatus status;
     SdfAssetPath mayaReferenceAssetPath;
     // Check to see if we have a valid Maya reference attribute
     UsdAttribute mayaReferenceAttribute = prim.GetAttribute(m_referenceName);
-    mayaReferenceAttribute.Get(&mayaReferenceAssetPath);
-    MString mayaReferencePath(mayaReferenceAssetPath.GetResolvedPath().c_str());
+    if (!mayaReferenceAttribute.Get(&mayaReferenceAssetPath)) {
+        return MS::kFailure;
+    }
+
+    MString mayaReferencePath = resolveReference(mayaReferenceAssetPath);
 
     // The resolved path is empty if the maya reference is a full path.
     if (!mayaReferencePath.length())
