@@ -61,6 +61,7 @@ private:
 
     static const TfToken m_namespaceName;
     static const TfToken m_referenceName;
+    static const MString m_primNSAttr;
 };
 
 PXR_NAMESPACE_CLOSE_SCOPE

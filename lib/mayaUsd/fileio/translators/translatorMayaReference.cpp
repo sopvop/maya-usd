@@ -150,6 +150,7 @@ namespace {
 
 const TfToken UsdMayaTranslatorMayaReference::m_namespaceName = TfToken("mayaNamespace");
 const TfToken UsdMayaTranslatorMayaReference::m_referenceName = TfToken("mayaReference");
+const MString UsdMayaTranslatorMayaReference::m_primNSAttr = "usdPrimNamespace";
 
 MStatus
 UsdMayaTranslatorMayaReference::LoadMayaReference(const UsdPrim& prim, MObject& parent, MString& mayaReferencePath, MString& rigNamespaceM)
@@ -438,13 +439,30 @@ UsdMayaTranslatorMayaReference::update(const UsdPrim& prim, MObject parent)
         // attr before loading it, since the previous connection may be gone.
         //
         if (refName == expectedRefName) {
-          // Reconnect the reference node's `associatedNode` attr before
-          // loading it, since the previous connection may be gone.
-          connectReferenceAssociatedNode(parentDag, tempRefFn);
-          refNode = tempRefNode;
-          break;
+            refNode = tempRefNode;
+            break;
         }
       }
+    }
+    // search the old way using the namespace attr
+    if (refNode.isNull()) {
+      for (MItDependencyNodes refIter(MFn::kReference); !refIter.isDone(); refIter.next()) {
+        MObject tempRefNode = refIter.item();
+        MFnReference tempRefFn(tempRefNode);
+        if (!tempRefFn.isFromReferencedFile()) {
+          MPlug primNSPlug = tempRefFn.findPlug(MString(m_primNSAttr), true, &status);
+          if (status && primNSPlug.asString() == rigNamespaceM) {
+              refNode = tempRefNode;
+              break;
+          }
+        }
+      }
+    }
+    if (!refNode.isNull()) {
+      // Reconnect the reference node's `associatedNode` attr before
+      // loading it, since the previous connection may be gone.
+      MFnReference tempRefFn(refNode);
+      connectReferenceAssociatedNode(parentDag, tempRefFn);
     }
   }
 
