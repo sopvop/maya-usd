@@ -69,6 +69,8 @@ mayaUsd_promoteHeaderList(
 # install
 # -----------------------------------------------------------------------------
 install(TARGETS ${TARGET_NAME}
+    ARCHIVE
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
     LIBRARY
     DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
     RUNTIME
