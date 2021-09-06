@@ -259,7 +259,7 @@ bool _GetLocalTransformForDagPoseMember(
     MStatus status;
 
     MPlug xformMatrixPlug = dagPoseDep.findPlug("xformMatrix");
-#if MAYA_API_VERSION >= 20190000
+#if MAYA_API_VERSION >= 20200000
     if (TfDebug::IsEnabled(PXRUSDMAYA_TRANSLATORS)) {
         // As an extra debug sanity check, make sure that the logicalIndex
         // already exists
