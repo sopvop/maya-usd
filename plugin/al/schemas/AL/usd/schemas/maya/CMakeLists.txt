@@ -90,6 +90,8 @@ install(
     TARGETS AL_USDMayaSchemas
     LIBRARY
     DESTINATION ${library_install_path}
+    ARCHIVE
+    DESTINATION ${library_install_path}
     RUNTIME
     DESTINATION ${library_install_path}
 )
