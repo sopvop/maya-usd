@@ -20,7 +20,7 @@ configure_file (
     @ONLY
 )
 
-list(APPEND DEPENDANT_LIBRARIES ${PYTHON_LIBRARIES} usd)
+list(APPEND DEPENDANT_LIBRARIES Python::Python usd)
 
 ####################################################################################################
 # Schemas generation

@@ -208,7 +208,7 @@ target_link_libraries(${LIBRARY_NAME}
     usdImaging
     usdImagingGL
     vt
-    ${Boost_PYTHON_LIBRARY}
+    Boost::python
     ${MAYA_Foundation_LIBRARY}
     ${MAYA_OpenMayaAnim_LIBRARY}
     ${MAYA_OpenMayaUI_LIBRARY}

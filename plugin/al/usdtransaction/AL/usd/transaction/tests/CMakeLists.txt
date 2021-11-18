@@ -23,19 +23,14 @@ target_sources(${USDTRANSACTION_TEST_EXECUTABLE_NAME}
     testTransaction.cpp
 )
 
-if(IS_LINUX)
-    set(PTHREAD_LINK -lpthread -lm)
-endif()
-
 target_link_libraries(${USDTRANSACTION_TEST_EXECUTABLE_NAME}
   PRIVATE
     ${GTEST_LIBRARIES}
     arch
     usd
     vt
-    ${boost_python_LIBRARIES}
+    Boost::python
     ${USDTRANSACTION_LIBRARY_NAME}
-    ${PTHREAD_LINK}
 )
 
 target_include_directories(${USDTRANSACTION_TEST_EXECUTABLE_NAME}

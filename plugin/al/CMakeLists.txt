@@ -37,28 +37,25 @@ find_package(Boost REQUIRED)
 # Find the component under the versioned name and then set the generic
 # Boost_PYTHON_LIBRARY variable so that we don't have to duplicate this
 # logic in each library's CMakeLists.txt.
+set(python_version_nodot "${Python_VERSION_MAJOR}${Python_VERSION_MINOR}")
 set(boost_version_string "${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION}")
 if (((${boost_version_string} VERSION_GREATER_EQUAL "1.67") AND
     (${boost_version_string} VERSION_LESS "1.70")) OR
     ((${boost_version_string} VERSION_GREATER_EQUAL "1.70") AND
     Boost_NO_BOOST_CMAKE))
 
-    set(python_version_nodot "${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR}")
-    set(Boost_FIND_COMPONENTS
-        python${python_version_nodot}
-    )
-
-    set(Boost_PYTHON_LIBRARY "${Boost_PYTHON${python_version_nodot}_LIBRARY}")
-else()
-    set(Boost_FIND_COMPONENTS
-        python
-    )
-endif()
-
-find_package(Boost COMPONENTS
-                ${Boost_FIND_COMPONENTS}
+    find_package(Boost COMPONENTS
+                python${python_version_nodot}
                 REQUIRED
-)
+    )
+    add_library(Boost::python ALIAS Boost::python${python_version_nodot})
+else()
+    find_package(Boost COMPONENTS
+                python
+                REQUIRED
+    )
+    add_library(Boost::python${python_version_nodot} ALIAS Boost::python)
+endif()
 
 set(AL_USDMAYA_LOCATION_NAME
     "AL_USDMAYA_LOCATION"
