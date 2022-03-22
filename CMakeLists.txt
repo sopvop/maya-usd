@@ -100,6 +100,7 @@ include(cmake/utils.cmake)
 include(cmake/jinja.cmake)
 
 find_package(Maya 2018 REQUIRED)
+include_directories(SYSTEM ${MAYA_INCLUDE_DIRS})
 if (CMAKE_WANT_MATERIALX_BUILD)
     # Requires USD_SHA1 > 891eef161aeed582b9831584ab7f31ebe4bc52e8 for hdMtlx module
     find_package(USD 0.21.08 REQUIRED)
