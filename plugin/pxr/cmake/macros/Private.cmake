@@ -1272,7 +1272,7 @@ function(_pxr_library NAME)
         elseif(BUILD_SHARED_LIBS)
             install(
                 TARGETS ${NAME}
-                EXPORT pxrTargets
+                EXPORT pxrMayaTargets
                 LIBRARY DESTINATION ${INSTALL_DIR_SUFFIX}/${libInstallPrefix}
                 ARCHIVE DESTINATION ${INSTALL_DIR_SUFFIX}/${libInstallPrefix}
                 RUNTIME DESTINATION ${INSTALL_DIR_SUFFIX}/${libInstallPrefix}
@@ -1283,7 +1283,7 @@ function(_pxr_library NAME)
             if(WIN32)
                 install(
                     FILES $<TARGET_PDB_FILE:${NAME}>
-                    EXPORT pxrTargets
+                    EXPORT pxrMayaTargets
                     DESTINATION ${INSTALL_DIR_SUFFIX}/${libInstallPrefix}
                     OPTIONAL
                 )
@@ -1291,7 +1291,7 @@ function(_pxr_library NAME)
         else()
             install(
                 TARGETS ${NAME}
-                EXPORT pxrTargets
+                EXPORT pxrMayaTargets
                 LIBRARY DESTINATION ${INSTALL_DIR_SUFFIX}/${libInstallPrefix}
                 ARCHIVE DESTINATION ${INSTALL_DIR_SUFFIX}/${libInstallPrefix}
                 RUNTIME DESTINATION ${INSTALL_DIR_SUFFIX}/${libInstallPrefix}
@@ -1302,7 +1302,7 @@ function(_pxr_library NAME)
         if(NOT isPlugin)
             export(TARGETS ${NAME}
                 APPEND
-                FILE "${PROJECT_BINARY_DIR}/pxrTargets.cmake"
+                FILE "${PROJECT_BINARY_DIR}/pxrMayaTargets.cmake"
             )
         endif()
 

@@ -108,7 +108,9 @@ message(STATUS "   Python_EXECUTABLE   = ${Python_EXECUTABLE}")
 
 include(cmake/jinja.cmake)
 
-find_package(USD 0.20.05 REQUIRED)
+find_package(pxr REQUIRED)
+find_package(Maya 2018 REQUIRED)
+include_directories(SYSTEM ${MAYA_INCLUDE_DIRS})
 if (CMAKE_WANT_MATERIALX_BUILD)
     # Requires at least USD 21.08 for hdMtlx module and USD must have been built with MaterialX:
     if(NOT TARGET hdMtlx)

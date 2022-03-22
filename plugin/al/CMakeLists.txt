@@ -26,7 +26,7 @@ if(WIN32)
     endif()
 endif()
 
-find_package(Boost REQUIRED)
+find_package(Boost REQUIRED CONFIG)
 
 # As of boost 1.67 the boost_python component name includes the
 # associated Python version (e.g. python27, python36). After boost 1.70
@@ -46,13 +46,13 @@ if (((${boost_version_string} VERSION_GREATER_EQUAL "1.67") AND
 
     find_package(Boost COMPONENTS
                 python${python_version_nodot}
-                REQUIRED
+                REQUIRED CONFIG
     )
     add_library(Boost::python ALIAS Boost::python${python_version_nodot})
 else()
     find_package(Boost COMPONENTS
                 python
-                REQUIRED
+                REQUIRED CONFIG
     )
     add_library(Boost::python${python_version_nodot} ALIAS Boost::python)
 endif()
