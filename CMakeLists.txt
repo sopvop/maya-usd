@@ -111,6 +111,7 @@ include(cmake/jinja.cmake)
 find_package(pxr REQUIRED)
 find_package(Maya 2018 REQUIRED)
 include_directories(SYSTEM ${MAYA_INCLUDE_DIRS})
+link_directories(AFTER ${MAYA_LIBRARY_DIR})
 if (CMAKE_WANT_MATERIALX_BUILD)
     # Requires at least USD 21.08 for hdMtlx module and USD must have been built with MaterialX:
     if(NOT TARGET hdMtlx)
