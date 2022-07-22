@@ -65,7 +65,7 @@ bool extractOffsetMatrixComponents(
 {
     // Compose local matrix and offset parent matrix, then decompose components
     // at once.
-
+    #if 0
     MMatrix offsetMatrix;
     if (translators::DgNodeTranslator::getMatrix4x4(
             node, MPxTransform::offsetParentMatrix, offsetMatrix)
@@ -77,7 +77,7 @@ bool extractOffsetMatrixComponents(
         // Offset parent matrix is default, not need to compute
         return false;
     }
-
+    #endif
     MMatrix localMatrix;
     if (translators::DgNodeTranslator::getMatrix4x4(node, MPxTransform::xformMatrix, localMatrix)
         != MStatus::kSuccess) {
@@ -86,7 +86,7 @@ bool extractOffsetMatrixComponents(
     }
 
     MStatus               status;
-    MTransformationMatrix transformationMatrix(offsetMatrix * localMatrix);
+    MTransformationMatrix transformationMatrix(/* offsetMatrix * */ localMatrix);
     // Translate
     MVector t(transformationMatrix.getTranslation(MSpace::kTransform, &status));
     if (status != MStatus::kSuccess) {
@@ -135,7 +135,7 @@ bool extractOffsetMatrixComponent(const MPlug& attr, double* value)
         // Not supported attribute name
         return false;
     }
-
+    #if 0
     MMatrix offsetMatrix;
     if (translators::DgNodeTranslator::getMatrix4x4(
             attr.node(), MPxTransform::offsetParentMatrix, offsetMatrix)
@@ -148,7 +148,7 @@ bool extractOffsetMatrixComponent(const MPlug& attr, double* value)
         // Offset parent matrix is default, not need to compute
         return false;
     }
-
+    #endif
     MMatrix localMatrix;
     if (translators::DgNodeTranslator::getMatrix4x4(
             attr.node(), MPxTransform::xformMatrix, localMatrix)
@@ -158,7 +158,7 @@ bool extractOffsetMatrixComponent(const MPlug& attr, double* value)
     }
 
     MStatus               status;
-    MTransformationMatrix transformationMatrix(offsetMatrix * localMatrix);
+    MTransformationMatrix transformationMatrix(/* offsetMatrix * */ localMatrix);
     if (shortName == "t") {
         MVector t(transformationMatrix.getTranslation(MSpace::kTransform, &status));
         if (status != MStatus::kSuccess) {
@@ -855,7 +855,7 @@ MStatus TransformTranslator::copyAttributes(
         // This adds an op to the stack so we should do it after ClearXformOpOrder():
         xformSchema.SetResetXformStack(!inheritsTransform);
 
-#if MAYA_APP_VERSION > 2019
+#if MAYA_APP_VERSION > 2020
         if (params.m_mergeOffsetParentMatrix
             && extractOffsetMatrixComponents(
                 from, translation, rotation, rotateOrder, scale, shear)) {
@@ -872,7 +872,7 @@ MStatus TransformTranslator::copyAttributes(
             getInt32(from, m_rotateOrder, rotateOrder);
             getVec3(from, m_translation, (double*)&translation);
 
-#if MAYA_APP_VERSION > 2019
+#if MAYA_APP_VERSION > 2020
         }
 #endif
 
