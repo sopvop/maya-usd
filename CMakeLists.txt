@@ -154,12 +154,16 @@ if (BUILD_MAYAUSD_LIBRARY)
     include(cmake/jinja.cmake)
 endif()
 
-find_package(USD 0.21.11 REQUIRED)
+find_package(USD 0.20.05 REQUIRED)
 if (BUILD_MAYAUSD_LIBRARY OR BUILD_AL_PLUGIN OR BUILD_TESTS)
     if(NOT USD_GENSCHEMA)
         message(FATAL_ERROR "Building MayaUsd requires usdGenSchema (from USD)")
     endif()
 endif()
+find_package(Maya 2018 REQUIRED)
+include_directories(SYSTEM ${MAYA_INCLUDE_DIRS})
+link_directories(AFTER ${MAYA_LIBRARY_DIR})
+
 if (CMAKE_WANT_MATERIALX_BUILD)
     # Requires at least USD 21.08 for hdMtlx module and USD must have been built with MaterialX:
     if(NOT TARGET hdMtlx)

@@ -1,52 +1,5 @@
-# Simple module to find USD.
+find_package(pxr REQUIRED)
 
-# On a system with an existing USD /usr/local installation added to the system
-# PATH, use of PATHS in find_path incorrectly causes the existing USD
-# installation to be found.  As per
-# https://cmake.org/cmake/help/v3.4/command/find_path.html
-# and
-# https://cmake.org/pipermail/cmake/2010-October/040460.html
-# HINTS get searched before system paths, which produces the desired result.
-find_path(USD_INCLUDE_DIR
-    NAMES
-        pxr/pxr.h
-    HINTS
-        ${PXR_USD_LOCATION}
-        $ENV{PXR_USD_LOCATION}
-    PATH_SUFFIXES
-        include
-    DOC
-        "USD Include directory"
-)
-
-# This component is optional.
-find_file(USD_GENSCHEMA
-    NAMES
-        usdGenSchema
-    PATHS
-        ${PXR_USD_LOCATION}
-        $ENV{PXR_USD_LOCATION}
-    PATH_SUFFIXES
-        bin
-    DOC
-        "USD Gen schema application"
-)
-
-find_file(USD_CONFIG_FILE
-    NAMES 
-        pxrConfig.cmake
-    PATHS 
-        ${PXR_USD_LOCATION}
-        $ENV{PXR_USD_LOCATION}
-    DOC "USD cmake configuration file"
-)
-
-# PXR_USD_LOCATION might have come in as an environment variable, and
-# it could also have been a hint-list, so we'll make sure we set it to
-# wherever we found pxrConfig, which is always the correct location.
-get_filename_component(PXR_USD_LOCATION "${USD_CONFIG_FILE}" DIRECTORY)
-
-include(${USD_CONFIG_FILE})
 
 if(NOT DEFINED PXR_VERSION)
     message(FATAL_ERROR "Expected PXR_VERSION defined in pxrConfig.cmake")
@@ -157,7 +110,6 @@ include(FindPackageHandleStandardArgs)
 
 find_package_handle_standard_args(USD
     REQUIRED_VARS
-        PXR_USD_LOCATION
         USD_INCLUDE_DIR
         USD_LIBRARY_DIR
         USD_CONFIG_FILE

@@ -54,10 +54,7 @@ target_link_libraries(${TARGET_NAME}
     PUBLIC
         usd 
         usdGeom
-        ${PYTHON_LIBRARIES} 
-        ${PTHREAD_LINK}
-        $<$<BOOL:${IS_LINUX}>:"pthread">
-        $<$<BOOL:${IS_LINUX}>:"m">
+        Python::Python
 )
 
 # -----------------------------------------------------------------------------
