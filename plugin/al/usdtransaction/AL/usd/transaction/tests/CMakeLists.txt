@@ -21,7 +21,24 @@ target_sources(${TARGET_NAME}
     testTransaction.cpp
 )
 
-target_include_directories(${TARGET_NAME}
+target_link_libraries(${USDTRANSACTION_TEST_EXECUTABLE_NAME}
+  PRIVATE
+    ${GTEST_LIBRARIES}
+    arch
+    usd
+    vt
+    Boost::python
+    ${USDTRANSACTION_LIBRARY_NAME}
+)
+
+if(IS_MACOSX)
+    # Create symbolic link to python framework
+    file(CREATE_LINK ${MAYA_LOCATION}/Frameworks ${CMAKE_CURRENT_BINARY_DIR}/../Frameworks SYMBOLIC)
+endif()
+
+target_include_directories(${USDTRANSACTION_TEST_EXECUTABLE_NAME}
+  PRIVATE
+    ${GTEST_INCLUDE_DIRS}
   PUBLIC
     ${GTEST_INCLUDE_DIRS}
     ${USDTRANSACTION_INCLUDE_LOCATION}

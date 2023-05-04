@@ -20,7 +20,7 @@ configure_file (
     @ONLY
 )
 
-list(APPEND DEPENDANT_LIBRARIES ${PYTHON_LIBRARIES} usd usdGeom)
+list(APPEND DEPENDANT_LIBRARIES Python::Python usd usdGeom)
 
 ####################################################################################################
 # Schemas generation
@@ -77,14 +77,7 @@ target_include_directories(AL_USDMayaSchemas
     ${PXR_INCLUDE_DIRS}
 )
 
-# Hamed 2019 
-# https://stackoverflow.com/questions/25617839/undefined-reference-to-symbol-pthread-key-deleteglibc-2-2-5
-set(PTHREAD_LINK "")
-if(IS_LINUX)
-    set(PTHREAD_LINK -lpthread -lm)
-endif()
-
-target_link_libraries(AL_USDMayaSchemas ${DEPENDANT_LIBRARIES} ${PTHREAD_LINK})
+target_link_libraries(AL_USDMayaSchemas ${DEPENDANT_LIBRARIES})
 
 install(
     TARGETS AL_USDMayaSchemas
