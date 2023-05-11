@@ -145,9 +145,10 @@ endif()
 if (NOT PYTHONLIBS_FOUND)
     include(cmake/python.cmake)
 endif()
+
 message(STATUS "Build MayaUSD with Python3 = " ${BUILD_WITH_PYTHON_3})
-message(STATUS "   PYTHON_INCLUDE_DIRS = ${PYTHON_INCLUDE_DIRS}")
-message(STATUS "   PYTHON_LIBRARIES    = ${PYTHON_LIBRARIES}")
+message(STATUS "   Python_INCLUDE_DIRS = ${Python_INCLUDE_DIRS}")
+message(STATUS "   Python_LIBRARIES    = ${Python_LIBRARIES}")
 message(STATUS "   Python_EXECUTABLE   = ${Python_EXECUTABLE}")
 
 if (BUILD_MAYAUSD_LIBRARY)
