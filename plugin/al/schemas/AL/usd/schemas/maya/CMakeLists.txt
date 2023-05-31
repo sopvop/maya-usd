@@ -85,6 +85,8 @@ install(
     DESTINATION ${library_install_path}
     RUNTIME
     DESTINATION ${library_install_path}
+    ARCHIVE
+    DESTINATION ${library_install_path}
 )
 if(IS_WINDOWS)
     install(FILES $<TARGET_PDB_FILE:AL_USDMayaSchemas> DESTINATION ${library_install_path} OPTIONAL)
