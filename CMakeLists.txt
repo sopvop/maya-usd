@@ -104,13 +104,13 @@ include_directories(SYSTEM ${MAYA_INCLUDE_DIRS})
 link_directories(AFTER ${MAYA_LIBRARY_DIR})
 if (CMAKE_WANT_MATERIALX_BUILD)
     # Requires USD_SHA1 > 891eef161aeed582b9831584ab7f31ebe4bc52e8 for hdMtlx module
-    find_package(USD 0.21.08 REQUIRED)
+    find_package(pxr REQUIRED)
     # USD must have been built with MaterialX:
     if(NOT TARGET hdMtlx)
         message(FATAL_ERROR "MaterialX option requires USD binaries compiled with -DPXR_ENABLE_MATERIALX_SUPPORT=ON and recent enough to have the hdMtlx module")
     endif()
 else()
-    find_package(USD 0.20.05 REQUIRED)
+    find_package(pxr REQUIRED)
 endif()
 include(cmake/usd.cmake)
 
