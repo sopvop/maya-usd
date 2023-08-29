@@ -50,6 +50,7 @@
 #include <maya/MSelectionList.h>
 
 #include <ghc/filesystem.hpp>
+#include <string_view>
 
 PXR_NAMESPACE_OPEN_SCOPE
 
@@ -216,6 +217,23 @@ MStatus UnloadMayaReferenceWithUndo(const MObject& referenceObject)
     return LoadOrUnloadMayaReferenceWithUndo(referenceObject, false);
 }
 
+bool starts_with(const std::string_view& haystack, const std::string_view& needle) {
+    return needle.length() <= haystack.length()
+        && std::equal(needle.begin(), needle.end(), haystack.begin());
+}
+
+std::string_view asset_filename(std::string_view path) {
+    size_t ext = path.rfind('.');
+    if (ext != std::string_view::npos) {
+        path.remove_suffix(path.size() - ext);
+    };
+    size_t slash = path.rfind('/');
+    if (slash != std::string_view::npos) {
+        path.remove_prefix(slash+1);
+    }
+    return path;
+}
+
 } // namespace
 
 const TfToken UsdMayaTranslatorMayaReference::m_namespaceName = TfToken("mayaNamespace");
@@ -270,9 +288,10 @@ MString UsdMayaTranslatorMayaReference::getUniqueRefNodeName(
 
         if (uniqueRefNodeName.length() == 0) {
             MString               filePath = refDependNode.fileName(false, false, false);
-            ghc::filesystem::path fsFilePath(filePath.asWChar());
-            fsFilePath.replace_extension(""); // Remove the extension
-            uniqueRefNodeName += fsFilePath.filename().wstring().c_str();
+            std::string fileName(asset_filename(filePath.asUTF8()));
+            MString mname;
+            mname.setUTF8(fileName.c_str());
+            uniqueRefNodeName += mname;
         }
         uniqueRefNodeName += L"RN";
     }
@@ -440,21 +459,30 @@ MStatus UsdMayaTranslatorMayaReference::update(const UsdPrim& prim, MObject pare
     // Check to see if we have a valid Maya reference node name
     UsdAttribute mayaReferenceNodeName = prim.GetAttribute(m_referenceName);
     mayaReferenceNodeName.Get(&mayaReferenceAssetPath);
-    MString mayaReferencePath(mayaReferenceAssetPath.GetResolvedPath().c_str());
+    std::string assetPath = mayaReferenceAssetPath.GetAssetPath();
+
+    bool is_smassetfile = starts_with(assetPath, "smassetfile:");
+    if (!is_smassetfile) {
+        assetPath = mayaReferenceAssetPath.GetResolvedPath();
+    }
+
+    MString mayaReferencePath;
+    mayaReferencePath.setUTF8(assetPath.c_str());
 
     // The resolved path is empty if the maya reference is a full path.
     if (!mayaReferencePath.length()) {
         mayaReferencePath = mayaReferenceAssetPath.GetAssetPath().c_str();
     }
-
     // If the path is still empty return, there is no reference to import
     if (!mayaReferencePath.length()) {
         return MS::kFailure;
     }
-    MFileObject fileObj;
-    fileObj.setRawFullName(mayaReferencePath);
-    mayaReferencePath = fileObj.resolvedFullName();
 
+    if (!is_smassetfile) {
+        MFileObject fileObj;
+        fileObj.setRawFullName(mayaReferencePath);
+        mayaReferencePath = fileObj.resolvedFullName();
+    }
     TF_DEBUG(PXRUSDMAYA_TRANSLATORS)
         .Msg(
             "MayaReferenceLogic::update Looking for attribute on \"%s\".\"%s\"\n",
