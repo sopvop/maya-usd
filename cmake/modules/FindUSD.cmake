@@ -8,7 +8,7 @@ endif()
 # version numbers as CMake variables, in which case PXR_VERSION should have
 # been defined, along with the major, minor, and patch version numbers.
 # The only thing we need to do is assemble the USD_VERSION version string.
-set(USD_VERSION ${PXR_MAJOR_VERSION}.${PXR_MINOR_VERSION}.${PXR_PATCH_VERSION})
+set(USD_VERSION ${pxr_VERSION_STRING})
 
 # Set special Autodesk USD version. We use this to communicate whether or not
 # there are extra patches on-top of the normal USD build.
@@ -110,9 +110,9 @@ include(FindPackageHandleStandardArgs)
 
 find_package_handle_standard_args(USD
     REQUIRED_VARS
-        USD_INCLUDE_DIR
-        USD_LIBRARY_DIR
-        USD_CONFIG_FILE
+        #USD_INCLUDE_DIR
+        #USD_LIBRARY_DIR
+        #USD_CONFIG_FILE
         USD_VERSION
         ADSK_USD_VERSION
         PXR_VERSION

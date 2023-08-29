@@ -235,6 +235,7 @@ endforeach()
 
 find_program(MAYA_EXECUTABLE
         maya
+        maya2025
     HINTS
         "${MAYA_LOCATION}"
         "$ENV{MAYA_LOCATION}"

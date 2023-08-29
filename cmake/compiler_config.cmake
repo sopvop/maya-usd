@@ -99,10 +99,10 @@ function(mayaUsd_compile_config TARGET)
                 ${GNU_CLANG_FLAGS}
         )
         if(IS_LINUX)
-            target_compile_definitions(${TARGET}
-                PRIVATE
-                    _GLIBCXX_USE_CXX11_ABI=$<IF:$<BOOL:${MAYA_LINUX_BUILT_WITH_CXX11_ABI}>,1,0>
-            )
+            #target_compile_definitions(${TARGET}
+            #    PRIVATE
+            #        _GLIBCXX_USE_CXX11_ABI=$<IF:$<BOOL:${MAYA_LINUX_BUILT_WITH_CXX11_ABI}>,1,0>
+            #)
         endif()
         if(USD_VERSION VERSION_GREATER_EQUAL "0.23.11")
             # Parts of boost rely on deprecated features of STL that have been removed
