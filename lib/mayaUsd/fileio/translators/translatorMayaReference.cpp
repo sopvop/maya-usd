@@ -202,9 +202,16 @@ MStatus LoadOrUnloadMayaReferenceWithUndo(const MObject& referenceObject, bool l
     MString referenceNodeName = referenceNodeFn.name();
     MString loadOrUnloadFlag = load ? "-lr" : "-ur";
     MString loadCommand = "file -preserveUndo true " + loadOrUnloadFlag + " " + referenceNodeName;
-    status = MGlobal::executeCommand(loadCommand);
+    TF_DEBUG(PXRUSDMAYA_TRANSLATORS)
+        .Msg(
+            "LoadOrUnloadMayaReferenceWithUndo command %s.\n",
+            loadCommand.asChar());
 
-    return status;
+    status = MGlobal::executeCommand(loadCommand);
+    // Unknown nodes cause file command to return error, which breaks unloading
+    // of prim in AL plugin, so instead we just print and return success
+    CHECK_MSTATUS(status);
+    return MStatus::kSuccess;
 }
 
 MStatus LoadMayaReferenceWithUndo(const MObject& referenceObject)
@@ -473,6 +480,13 @@ MStatus UsdMayaTranslatorMayaReference::update(const UsdPrim& prim, MObject pare
     if (!mayaReferencePath.length()) {
         mayaReferencePath = mayaReferenceAssetPath.GetAssetPath().c_str();
     }
+
+    TF_DEBUG(PXRUSDMAYA_TRANSLATORS)
+        .Msg(
+            "MayaReferenceLogic::update prim=%s asset=%s\n",
+            prim.GetPath().GetText(),
+            mayaReferencePath.asChar());
+
     // If the path is still empty return, there is no reference to import
     if (!mayaReferencePath.length()) {
         return MS::kFailure;
@@ -608,7 +622,9 @@ MStatus UsdMayaTranslatorMayaReference::update(const UsdPrim& prim, MObject pare
                         prim.GetPath().GetText(),
                         command.asChar());
                 status = MGlobal::executeCommand(command);
-                CHECK_MSTATUS_AND_RETURN_IT(status);
+                // Unknown nodes cause file command to return error, which breaks unloading
+                // of prim in AL plugin, so instead we just print and go on
+                CHECK_MSTATUS(status);
             } else {
                 // Check to see if reference is already loaded - if so, don't need to do anything!
                 if (fnReference.isLoaded()) {
