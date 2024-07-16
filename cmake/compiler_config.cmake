@@ -25,7 +25,8 @@ set(MSVC_FLAGS
     /W3
     $<$<BOOL:${BUILD_STRICT_MODE}>:/WX>
     # enable two-phase name lookup and other strict checks (binding a non-const reference to a temporary, etc..)
-    $<$<BOOL:$<VERSION_GREATER:${USD_BOOST_VERSION},106600>>:/permissive->
+    # also alternative operators
+    /permissive-
     # enable pdb generation.
     /Zi
     # to see the updated value of the __cplusplus macro
