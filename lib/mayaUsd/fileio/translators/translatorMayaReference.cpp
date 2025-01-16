@@ -561,7 +561,7 @@ static MObject findExistingMayaReference(
 #endif
         if (!hasMatchingName)
             continue;
-
+#if 0 //stupid idea
         // If the reference is not to the expected referenced file, don't use it.
         // It might be because two prims with the same name, which can happen when
         // they are under different USD variants, result in the same reference node
@@ -583,7 +583,7 @@ static MObject findExistingMayaReference(
 #endif
             continue;
         }
-
+#endif
         // If we get here, we have found the desired reference node.
         // Reconnect the reference node's `associatedNode` attr before
         // loading it, since the previous connection may be gone.
