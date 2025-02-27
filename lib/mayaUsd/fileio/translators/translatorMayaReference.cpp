@@ -49,6 +49,7 @@
 #include <maya/MItDependencyNodes.h>
 #include <maya/MNodeClass.h>
 #include <maya/MPlug.h>
+#include <maya/MPxFileResolver.h>
 #include <maya/MSelectionList.h>
 
 #include <ghc/filesystem.hpp>
@@ -620,7 +621,17 @@ MStatus UsdMayaTranslatorMayaReference::update(const UsdPrim& prim, MObject pare
     MString mayaReferencePath(mayaReferenceAssetPath.GetResolvedPath().c_str());
 
     // The resolved path is empty if the maya reference is a full path.
-    if (!mayaReferencePath.length()) {
+    std::string assetPath = mayaReferenceAssetPath.GetAssetPath();
+
+    auto allResolvers = MPxFileResolver::getURIResolversByScheme();
+    bool hasResolver = std::any_of(
+        allResolvers.begin(), allResolvers.end(), [&assetPath](MString const& mayaScheme) {
+            std::string scheme(mayaScheme.asUTF8());
+            scheme.push_back(':');
+            return (assetPath.rfind(scheme, 0) != std::string::npos);
+        });
+
+    if (hasResolver || !mayaReferencePath.length()) {
         mayaReferencePath = mayaReferenceAssetPath.GetAssetPath().c_str();
     }
 
