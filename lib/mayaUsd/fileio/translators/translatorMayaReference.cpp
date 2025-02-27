@@ -639,10 +639,11 @@ MStatus UsdMayaTranslatorMayaReference::update(const UsdPrim& prim, MObject pare
     if (!mayaReferencePath.length()) {
         return MS::kFailure;
     }
-    MFileObject fileObj;
-    fileObj.setRawFullName(mayaReferencePath);
-    mayaReferencePath = fileObj.resolvedFullName();
-
+    if (!hasResolver) {
+        MFileObject fileObj;
+        fileObj.setRawFullName(mayaReferencePath);
+        mayaReferencePath = fileObj.resolvedFullName();
+    }
     TF_DEBUG(PXRUSDMAYA_TRANSLATORS)
         .Msg(
             "MayaReferenceLogic::update Looking for attribute on \"%s\".\"%s\"\n",
