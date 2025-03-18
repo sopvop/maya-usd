@@ -254,6 +254,7 @@ target_link_libraries(${PROJECT_NAME}
         usdShade
         usdSkel
         usdUtils
+	usdUI
         $<$<BOOL:$<VERSION_GREATER_EQUAL:${UFE_PREVIEW_VERSION_NUM},4023>>:usdUI>
         vt
         ${UFE_LIBRARY}
