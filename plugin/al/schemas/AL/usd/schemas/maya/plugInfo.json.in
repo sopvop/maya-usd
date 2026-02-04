@@ -90,6 +90,7 @@
             "Name": "AL_USDMayaSchemas", 
             "ResourcePath": "resources", 
             "Root": "..", 
+            "LibraryPath": "../../@CMAKE_SHARED_LIBRARY_PREFIX@AL_USDMayaSchemas@CMAKE_SHARED_LIBRARY_SUFFIX@",
             "Type": "library"
         }
     ]

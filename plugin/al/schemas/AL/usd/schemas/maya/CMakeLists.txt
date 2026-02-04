@@ -192,12 +192,12 @@ install(
 # Install usd plugin resources
 ####################################################################################################
 
-file(RELATIVE_PATH
-    SCHEMAS_LIBRARY_DIR
-    ${resources_install_path}/..
-    ${library_install_path}
-
-)
+#file(RELATIVE_PATH
+#    SCHEMAS_LIBRARY_DIR
+#    ${resources_install_path}/..
+#    ${library_install_path}
+#
+#)
 
 # Bake relative path
 configure_file(
