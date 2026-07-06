@@ -657,6 +657,52 @@ void OrphanedNodesManager::recursiveSetOrphaned(const PulledPrimNode::Ptr& trieN
         }
     }
 }
+// OUR
+// For maya reference node we only compare assetVariant variant, so that reference node is
+// not lost when switching irrelevant variants. Workaround for questionable choice of
+// autodesk devs to use variants selections for node uniqueness
+static const std::string_view kMayaReference { "MayaReference" };
+static const std::string_view kassetVariant { "assetVariant" };
+
+static bool matchesAssetVariant(
+    const std::list<VariantSetDescriptor>& orig,
+    const std::list<VariantSetDescriptor>& current)
+{
+
+    if (orig.size() != current.size()) {
+        return false;
+    }
+    for (auto origIt = orig.begin(),
+              origEnd = orig.end(),
+              currentIt = current.begin(),
+              currentEnd = current.end();
+         origIt != origEnd && currentIt != currentEnd;
+         origIt++, currentIt++) {
+        if (origIt->path != currentIt->path) {
+            return false;
+        }
+        auto origAssetVariant = std::find_if(
+            origIt->variantSelections.begin(), origIt->variantSelections.end(), [](auto const& v) {
+                return v.variantSetName == kassetVariant;
+            });
+        auto currentAssetVariant = std::find_if(
+            currentIt->variantSelections.begin(),
+            currentIt->variantSelections.end(),
+            [](auto const& v) { return v.variantSetName == kassetVariant; });
+
+        bool hasOrig = origAssetVariant != origIt->variantSelections.end();
+        bool hasCurrent = currentAssetVariant != currentIt->variantSelections.end();
+        if (hasOrig && hasCurrent) {
+            if (origAssetVariant->variantSelection != currentAssetVariant->variantSelection) {
+                return false;
+            }
+        } else if (hasOrig || hasCurrent) {
+            return false;
+        }
+    }
+    return true;
+}
+// end OUR
 
 /* static */
 void OrphanedNodesManager::recursiveSwitch(
@@ -681,10 +727,20 @@ void OrphanedNodesManager::recursiveSwitch(
         // inactive on pull, to avoid rendering it.
         const auto             currentDesc = variantSetDescriptors(ufePath.pop());
         const PullVariantInfos infos = trieNode->data();
+        // OUT stuff
+        bool isMayaReference = pulledNode->nodeType() == kMayaReference;
+        bool first = true;
+        // end OUR stuff
         for (const PullVariantInfo& variantInfo : infos) {
             const auto& originalDesc = variantInfo.variantSetDescriptors;
-            const bool  variantSetsMatch = (originalDesc == currentDesc);
-            const bool  orphaned = (pulledNode && !variantSetsMatch);
+            bool        variantSetsMatch = (originalDesc == currentDesc);
+            // H2 stuff
+            if (!variantSetsMatch && first && isMayaReference) {
+                first = false;
+                variantSetsMatch = matchesAssetVariant(originalDesc, currentDesc);
+            }
+            // end H2 stuff
+            const bool orphaned = (pulledNode && !variantSetsMatch);
             if (processOrphans == orphaned)
                 TF_VERIFY(setOrphaned(trieNode, variantInfo, orphaned));
         }
