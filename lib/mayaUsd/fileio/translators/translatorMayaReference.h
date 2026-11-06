@@ -59,6 +59,9 @@ struct UsdMayaTranslatorMayaReference
     static MStatus UnloadMayaReference(const MObject& parent);
 
     MAYAUSD_CORE_PUBLIC
+    static MStatus LoadMayaReference(const MObject& parent);
+
+    MAYAUSD_CORE_PUBLIC
     static MStatus update(const UsdPrim& prim, MObject parent);
 };
 

@@ -18,6 +18,7 @@
 #include <mayaUsd/fileio/primUpdaterManager.h>
 #include <mayaUsd/fileio/pullInformation.h>
 #include <mayaUsd/fileio/utils/proxyAccessorUtil.h>
+#include <mayaUsd/fileio/translators/translatorMayaReference.h>
 #include <mayaUsd/nodes/proxyShapeBase.h>
 #include <mayaUsd/ufe/Global.h>
 #include <mayaUsd/ufe/Utils.h>
@@ -28,6 +29,7 @@
 #include <pxr/base/tf/diagnostic.h>
 #include <pxr/usd/usd/editContext.h>
 
+#include <maya/MDagPath.h>
 #include <maya/MFnDagNode.h>
 #include <maya/MPlug.h>
 #include <ufe/hierarchy.h>
@@ -741,8 +743,17 @@ void OrphanedNodesManager::recursiveSwitch(
             }
             // end H2 stuff
             const bool orphaned = (pulledNode && !variantSetsMatch);
-            if (processOrphans == orphaned)
+            if (processOrphans == orphaned) {
                 TF_VERIFY(setOrphaned(trieNode, variantInfo, orphaned));
+                if (isMayaReference) {
+                    MDagPath pullParentPath = variantInfo.editedAsMayaRoot;
+                    if (orphaned) {
+                        UsdMayaTranslatorMayaReference::UnloadMayaReference(pullParentPath.node());
+                    } else {
+                        UsdMayaTranslatorMayaReference::LoadMayaReference(pullParentPath.node());
+                    }
+                }
+            }
         }
     } else {
         const bool isGatewayToUsd = Ufe::SceneSegmentHandler::isGateway(ufePath);

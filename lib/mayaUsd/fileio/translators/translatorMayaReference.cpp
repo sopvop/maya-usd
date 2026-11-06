@@ -418,6 +418,31 @@ MStatus UsdMayaTranslatorMayaReference::UnloadMayaReference(const MObject& paren
     return status;
 }
 
+MStatus UsdMayaTranslatorMayaReference::LoadMayaReference(const MObject& parent)
+{
+    TF_DEBUG(PXRUSDMAYA_TRANSLATORS).Msg("MayaReferenceLogic::UnloadMayaReference\n");
+    MStatus           status;
+    MFnDependencyNode fnParent(parent, &status);
+    if (status) {
+        MPlug messagePlug(fnParent.object(), getMessageAttr());
+        if (status) {
+            MPlugArray referencePlugs;
+            messagePlug.connectedTo(referencePlugs, false, true);
+
+            // Unload the connected references.
+            auto referencePlugsLength = referencePlugs.length();
+            for (uint32_t i = 0; i < referencePlugsLength; ++i) {
+                MObject temp = referencePlugs[i].node();
+                if (temp.hasFn(MFn::kReference)) {
+                    status = LoadMayaReferenceWithUndo(temp);
+                    CHECK_MSTATUS_AND_RETURN_IT(status);
+                }
+            }
+        }
+    }
+    return status;
+}
+
 static MStatus connectReferenceAssociatedNode(MFnDagNode& dagNode, MFnReference& refNode)
 {
     MPlug srcPlug(dagNode.object(), getMessageAttr());
